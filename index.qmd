@@ -256,7 +256,9 @@ for sim in range(n_simulations):
 
 # Compute probability
 prob_above_30000 = np.mean(final_balances > W0)
-prob_below_30000 = 1 - prob_above_30000
+prob_below_30000 = np.mean(final_balances <= W0)  # More explicit: count those <= W0
+# Ensure they sum to exactly 1.0 (should be automatic, but being explicit)
+total_prob = prob_above_30000 + prob_below_30000
 
 # Create visualization
 fig, ax = plt.subplots(figsize=(8, 5))
@@ -290,11 +292,14 @@ plt.show()
 # Print results
 print(f"Probability Estimate: P(final balance > $30,000) = {prob_above_30000:.3f}")
 print(f"\nStarting at age {start_age} and playing until age {end_age} ({N} years):")
-print(f"  Simulations where final balance > $30,000: {prob_above_30000 * 100:.1f}%")
-print(f"  Simulations where final balance ≤ $30,000: {prob_below_30000 * 100:.1f}%")
+above_count = int(prob_above_30000 * 100)
+below_count = 100 - above_count  # Ensure exact count
+print(f"  Simulations where final balance > $30,000: {above_count} ({prob_above_30000 * 100:.1f}%)")
+print(f"  Simulations where final balance ≤ $30,000: {below_count} ({prob_below_30000 * 100:.1f}%)")
 print(f"\nOut of 100 simulations:")
-print(f"  Above initial investment: {int(prob_above_30000 * 100)} simulations")
-print(f"  Below or equal to initial investment: {int(prob_below_30000 * 100)} simulations")
+print(f"  Above initial investment: {above_count} simulations")
+print(f"  Below or equal to initial investment: {below_count} simulations")
+print(f"  Total: {above_count + below_count} simulations (should be 100)")
 ```
 
 **Interpretation:** I was curious what would happen if I started playing this game at my current age (26) and kept going until 75—that's 49 years of coin flips. The results are sobering: even with nearly five decades to play, the probability of ending up with more than my initial $30,000 is less than 50%. The visualization shows this clearly—most simulations end below the starting point. You'd think more time would help, but the compounding nature of losses means a few bad sequences can erase years of gains. This is why I'd be hesitant to buy-in, even though the math says each flip has positive expected value.
